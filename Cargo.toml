@@ -1,0 +1,7 @@
+[package]
+
+name = "inklers"
+version = "0.0.1"
+authors = ["thiotimoline <thiotimoline@gmail.com>"]
+[dependencies.rustbox]
+git = "https://github.com/gchp/rustbox/"
