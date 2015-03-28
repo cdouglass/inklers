@@ -11,4 +11,4 @@ https://backstrapweaving.wordpress.com/tutorials/
 ##To run:
 * Install Rust and Cargo from https://github.com/rust-lang/cargo.
 * Clone this repository and navigate into it.
-* Type "Cargo run" and everything should work. If it doesn't, file an issue.
+* Type "cargo run" and everything should work. If it doesn't, file an issue.
