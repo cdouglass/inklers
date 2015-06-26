@@ -9,6 +9,6 @@ Currently you can only set the colors of warp and weft threads, but upcoming fea
 https://backstrapweaving.wordpress.com/tutorials/
 
 ##To run:
-* Install a Rust nightly build from http://www.rust-lang.org/install.html. Due to use of unstable features in a dependency, this won't compile if your Rust install is a beta version.
+* Install a Rust nightly build from http://www.rust-lang.org/install.html. Due to use of unstable features in a dependency, this won't compile on beta.
 * Clone this repository and navigate into it.
 * Usage: ```cargo run [filename]```, where ```filename``` is an optional argument that should be the name of a previously saved pattern file.

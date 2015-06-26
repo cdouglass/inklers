@@ -1,4 +1,5 @@
 #![allow(deprecated)]
+#![feature(collections)]
 
 extern crate rustbox;
 
@@ -55,69 +56,63 @@ fn str_to_col(s: &str) -> Color {
   }
 }
 
-fn col_to_pixel(color: Color) -> String {
+fn col_to_pixel(color: Color) -> &'static str { 
   match color {
-    Color::Red     => "255   0   0".to_string(),
-    Color::Yellow  => "255 255   0".to_string(),
-    Color::Green   => "  0 255   0".to_string(),
-    Color::Blue    => "  0   0 255".to_string(),
-    Color::White   => "255 255 255".to_string(),
-    Color::Cyan    => "  0 255 255".to_string(),
-    Color::Magenta => "255   0 255".to_string(),
-    _              => "  0   0   0".to_string(),
+    Color::Red     => "255   0   0 ",
+    Color::Yellow  => "255 255   0 ",
+    Color::Green   => "  0 255   0 ",
+    Color::Blue    => "  0   0 255 ",
+    Color::White   => "255 255 255 ",
+    Color::Cyan    => "  0 255 255 ",
+    Color::Magenta => "255   0 255 ",
+    _              => "  0   0   0 ",
   }
 }
 
 // files
-
-fn threading_to_line(t: &Threading, i: usize) -> String {
-  let mut line = vec![col_to_pixel(t.weft)];
-  match i % 2 {
-    0 => { for j in (0..t.even.len()) {
-             line.push(col_to_pixel(t.even[j]));
-             line.push(col_to_pixel(t.even[j]));
-           }
-           line.push(col_to_pixel(t.weft));
-           line.remove(0);
-    }
-    _ => { for j in (0..t.odd.len()) {
-             line.push(col_to_pixel(t.odd[j]));
-             line.push(col_to_pixel(t.odd[j]));
-           }
-    }
-  }
-  let mut l = vec![];
-  for i in line.iter() {
-    l.push(i);
-    l.push(i);
-  }
-  l.connect(" ")
-}
 
 fn save_image(t: &Threading, n: &str) {
   let f = n.to_string() + ".ppm";
   let path = Path::new(&f);
   let mut file = File::create(&path).unwrap();
 
-  let width = (t.odd.len() * 2 + 1)*2;
+  let width = (t.odd.len() + t.even.len()) * 2 + 2;
   let w = width.to_string();
   let height = width * 4;
   let h = height.to_string();
-  let layout = vec![&w, &(" ".to_string()), &h, &("\n".to_string())].connect("");
-  let mut out = vec!["P3\n".to_string(), layout, "255\n".to_string()];
+
+  file.write((format!("P3\n{} {}\n255\n", w, h)).as_bytes()).unwrap(); // header
 
   for i in (0..height) {
-    let line = threading_to_line(t,i);
-    for j in (0..8) {
-    out.push(line.clone() + "\n");
+    for z in (0..8) {
+      let weft = col_to_pixel(t.weft);
+      match i % 2 {
+        0 => { for k in 0..(t.even.len()) { // TODO if one warp set is short, fill in with warp to constant width
+            let p = col_to_pixel(t.even[k]);
+            file.write(p.as_bytes()).unwrap();
+            file.write(p.as_bytes()).unwrap();
+            file.write(p.as_bytes()).unwrap();
+            file.write(p.as_bytes()).unwrap();
+          }
+          file.write(weft.as_bytes()).unwrap();
+          file.write(weft.as_bytes()).unwrap();
+        },
+        _ => { 
+          file.write(weft.as_bytes()).unwrap();
+          file.write(weft.as_bytes()).unwrap();
+          for k in 0..(t.odd.len()) {
+            let p = col_to_pixel(t.odd[k]);
+            file.write(p.as_bytes()).unwrap();
+            file.write(p.as_bytes()).unwrap();
+            file.write(p.as_bytes()).unwrap();
+            file.write(p.as_bytes()).unwrap();
+          }
+        }
+      }
+      file.write("\n".as_bytes()).unwrap();
     }
-  }  
-
-  for i in out {
-    file.write_all((&i).as_bytes()).unwrap();
   }
 }
-// and the number of rows shown will be equal to the length of each shed, so the image is square
 
 fn save_threading(t: &Threading, n: &str) {
   let path = Path::new(n);
@@ -280,7 +275,6 @@ fn print_dash(rb: &RustBox, mode: Mode, msg: &str) {
       out.push("  press 'n', then a new name, then <Enter>.");
       out.push("Press 'q' to return to normal mode without saving.");
       out.push("");
-      out.push("This may take a while.");
       for i in (1..out.len()) {
         rb.print(x, y, rustbox::RB_NORMAL, Color::White, Color::Black, out[i]);
         y = y + 1;
@@ -324,7 +318,7 @@ fn pick_color(rb: &RustBox, t: &mut Threading, x: &mut i32, y: &mut i32) {
     rb.clear();
     draw(rb, t, *x, *y, Mode::Coloring, "");
     rb.present(); 
-    let event: rustbox::EventResult<rustbox::Event> = (*rb).poll_event(false);
+    let event: rustbox::EventResult = (*rb).poll_event(false);
     match event { 
       Ok(rustbox::Event::KeyEvent(key)) => {
         match key {
@@ -353,7 +347,7 @@ fn save(rb: &RustBox, t: &Threading, name: String) {
     rb.clear();
     draw(rb, t, 0, 0, Mode::Save, &filename);
     rb.present();
-    let event: rustbox::EventResult<rustbox::Event> = (*rb).poll_event(false);
+    let event: rustbox::EventResult = (*rb).poll_event(false);
     match event {
       Ok(rustbox::Event::KeyEvent(key)) => {
         match key {
@@ -376,7 +370,7 @@ fn save(rb: &RustBox, t: &Threading, name: String) {
 fn get_name(rb: &RustBox) -> String {
   let mut name = "".to_string();
   loop {
-    let event: rustbox::EventResult<rustbox::Event> = (*rb).poll_event(false);
+    let event: rustbox::EventResult = (*rb).poll_event(false);
     match event {
       Ok(rustbox::Event::KeyEvent(key)) => {
         match key {
