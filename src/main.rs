@@ -1,5 +1,4 @@
-#![allow(deprecated)]
-#![feature(collections)]
+//#![allow(deprecated)]
 
 extern crate rustbox;
 
@@ -322,16 +321,16 @@ fn pick_color(rb: &RustBox, t: &mut Threading, x: &mut i32, y: &mut i32) {
     match event { 
       Ok(rustbox::Event::KeyEvent(key)) => {
         match key {
-          Some(Key::Char('q')) => { break; },
-          Some(Key::Char('r')) => { color_key(rb, t, x, y, Color::Red) }
-          Some(Key::Char('y')) => { color_key(rb, t, x, y, Color::Yellow) }
-          Some(Key::Char('g')) => { color_key(rb, t, x, y, Color::Green) }
-          Some(Key::Char('u')) => { color_key(rb, t, x, y, Color::Blue) }
-          Some(Key::Char('c')) => { color_key(rb, t, x, y, Color::Cyan) }
-          Some(Key::Char('w')) => { color_key(rb, t, x, y, Color::White) }
-          Some(Key::Char('m')) => { color_key(rb, t, x, y, Color::Magenta) }
-          Some(Key::Char('b')) => { color_key(rb, t, x, y, Color::Black) }
-          Some(Key::Char(k)) => { navigate(rb, x, y, k) },
+          Key::Char('q') => { break; },
+          Key::Char('r') => { color_key(rb, t, x, y, Color::Red) }
+          Key::Char('y') => { color_key(rb, t, x, y, Color::Yellow) }
+          Key::Char('g') => { color_key(rb, t, x, y, Color::Green) }
+          Key::Char('u') => { color_key(rb, t, x, y, Color::Blue) }
+          Key::Char('c') => { color_key(rb, t, x, y, Color::Cyan) }
+          Key::Char('w') => { color_key(rb, t, x, y, Color::White) }
+          Key::Char('m') => { color_key(rb, t, x, y, Color::Magenta) }
+          Key::Char('b') => { color_key(rb, t, x, y, Color::Black) }
+          Key::Char(k) => { navigate(rb, x, y, k) },
           _ => {},
         }
       },
@@ -351,13 +350,13 @@ fn save(rb: &RustBox, t: &Threading, name: String) {
     match event {
       Ok(rustbox::Event::KeyEvent(key)) => {
         match key {
-          Some(Key::Char('n')) => { filename = get_name(rb).clone(); },
-          Some(Key::Char('s')) => {
+          Key::Char('n') => { filename = get_name(rb).clone(); },
+          Key::Char('s') => {
             save_threading(t, &filename);
             save_image(t, &filename);
             break;
           },
-          Some(Key::Char('q')) => { break; },
+          Key::Char('q') => { break; },
           _ => {},
         }
       }
@@ -374,9 +373,8 @@ fn get_name(rb: &RustBox) -> String {
     match event {
       Ok(rustbox::Event::KeyEvent(key)) => {
         match key {
-          Some(Key::Char(k)) => { name.push(k); },
-          Some(_) => { break; }, // any key that's not a character, including but not limited to <Enter>
-          _ => {},
+          Key::Char(k) => { name.push(k); },
+          _ => { break; }, // any key that's not a character, including but not limited to <Enter>
           }
         }
       Err(e) => panic!("{:?}", e),
@@ -421,10 +419,10 @@ fn main() {
     match rustbox.poll_event(false) {
       Ok(rustbox::Event::KeyEvent(key)) => {
         match key {
-          Some(Key::Char('q')) => { break; }
-          Some(Key::Char('c')) => { pick_color(&rustbox, &mut my_threading, &mut cursor_x, &mut cursor_y); },
-          Some(Key::Char('s')) => { save(&rustbox, &my_threading, input_file.clone()) },
-          Some(Key::Char(k)) => { navigate(&rustbox, &mut cursor_x, &mut cursor_y, k) },
+          Key::Char('q') => { break; }
+          Key::Char('c') => { pick_color(&rustbox, &mut my_threading, &mut cursor_x, &mut cursor_y); },
+          Key::Char('s') => { save(&rustbox, &my_threading, input_file.clone()) },
+          Key::Char(k) => { navigate(&rustbox, &mut cursor_x, &mut cursor_y, k) },
           _ => { }
         }
       },
